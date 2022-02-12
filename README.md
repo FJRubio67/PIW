@@ -1,4 +1,4 @@
-# PIW: The Wasserstein prior
+# The Wasserstein prior
 
 This repository contains numerical examples related to the models presented in:
 
