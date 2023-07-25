@@ -2,7 +2,7 @@
 
 This repository contains numerical examples related to the models presented in:
 
-> Li, W. and Rubio, F.J. (2022+). On a prior based on the Wasserstein information matrix. Statistics and Probability Letters, in press. https://doi.org/10.1016/j.spl.2022.109645
+> Li, W. and Rubio, F.J. (2022). On a prior based on the Wasserstein information matrix. Statistics and Probability Letters, 190: 109645. https://doi.org/10.1016/j.spl.2022.109645
 
 [[arXiv](https://arxiv.org/abs/2202.03217)]
 
