@@ -1,0 +1,75 @@
+---
+title: "The Wasserstein prior for the Skew Normal distribution"
+author: '[F. Javier Rubio](https://sites.google.com/site/fjavierrubio67/)'
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  html_document:
+    toc: true
+    toc_float: true
+bibliography: references.bib
+---
+
+# The Wasserstein prior for the Skew Normal distribution
+
+The skew-normal pdf is defined as @azzalini:1985:
+$$
+s(x \mid \alpha) = 2 \phi(x) \Phi(\alpha x),
+$$
+where $\alpha \in {\mathbb R}$ is a skewness parameter.
+
+
+@rubio:2022 calculated the The Wasserstein prior for the skewness parameter of the skew normal distribution 
+$$
+\pi_W(\alpha)  \propto \sqrt{\int_{-\infty}^{\infty} \frac{\sqrt{2} e^{-\frac{1}{2} \left(2 \alpha ^2+1\right) x^2}}{\pi ^{3/2} \left(\alpha
+   ^2+1\right)^2 \left(\mbox{erf}\left(\frac{\alpha  x}{\sqrt{2}}\right)+1\right)}dx},
+$$
+They showed that this prior is symmetric about $0$, integrable, and has of order ${\mathcal O}(\vert \alpha \vert^{-5/2})$. They proposed approximating the Wasserstein prior using a Student-t distribution with $3/2$ degrees of freedom.
+
+The following R code shows the shape of the Wasserstein prior and a comparisons with the proposed approximation.
+
+See also: [Natural (non-) informative priors for the skew-normal distribution](https://rpubs.com/FJRubio/BTV) and [The Jeffreys prior for skew–symmetric models](https://rpubs.com/FJRubio/JPSS).
+
+## The Wasserstein prior
+```{r}
+# Wasserstein information function
+WIM <- Vectorize(function(alpha){
+  # Integrand
+  integ <- Vectorize(function(x){
+    log_num <- 0.5*log(2) - 0.5*(1 + 2*alpha^2)*x^2
+    log_den <- 1.5*log(pi) + 2*log(1 + alpha^2) - log(2) - pnorm(alpha*x, log.p = TRUE)
+    out <- exp(log_num - log_den)
+    return(out)
+  })
+  int <- integrate(integ,-Inf,Inf)$value
+})
+
+# Normalising constant
+tempf <- Vectorize(function(alpha){sqrt(WIM(alpha))})
+normc <- integrate(tempf,-Inf,Inf)$value
+
+# Wasserstein prior
+piW <- Vectorize(function(alpha){sqrt(WIM(alpha))/normc })
+
+curve(piW,-5,5, lwd = 2, n = 1000, xlab = expression(alpha), ylab = "Prior density", main = "Wasserstein prior",
+      cex.axis = 1.5, cex.lab = 1.5)
+```
+
+## Tractable approximation
+```{r}
+# t-approximation
+sc = 0.757
+appt <- Vectorize(function(x) dt(x/sc, df = 3/2)/sc)
+
+curve(piW,-5,5, lwd = 2, n = 1000, xlab = expression(alpha), ylab = "Prior density", main = "Wasserstein prior",
+      cex.axis = 1.5, cex.lab = 1.5)
+curve(appt,-5,5, lwd = 2, lty = 2, add = T, n = 1000)
+legend('topright', legend = c('Wasserstein prior', 't-approximation'), lwd = 2, lty = c(1,2))
+
+
+
+abs_err <- Vectorize(function(x) abs(piW(x) - appt(x))  )
+
+curve(abs_err,-5,5, lwd = 2, n = 1000, xlab = expression(alpha), ylab = "Absolute error", main = "",
+      cex.axis = 1.5, cex.lab = 1.5)
+
+```
